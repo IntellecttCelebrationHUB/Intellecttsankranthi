@@ -90,6 +90,24 @@
 .animate-kite {
     animation: kiteFloat 6s ease-in-out infinite;
 }
+#kite-arena {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Dense grid */
+    gap: 1.5rem;
+    perspective: 1000px;
+    will-change: transform; /* Boosts performance */
+}
+
+/* Make kites slightly smaller and faster to render */
+.kite-item {
+    transition: transform 0.3s ease;
+    backface-visibility: hidden;
+}
+
+.kite-item:hover {
+    transform: scale(1.2) zIndex(10);
+    z-index: 50;
+}
         
         .rangoli-bg {
             background-image: radial-gradient(#fbbf24 1px, transparent 1px);
@@ -526,9 +544,12 @@
                 </div>
                 <button id="postBtn" onclick="handlePostWish()" class="px-12 py-4 bg-yellow-400 text-orange-900 font-bold rounded-full hover:bg-yellow-300 shadow-xl transition-all">Post Wish</button>
             </div>
-            <div id="wishWall" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+           <div class="max-h-[600px] overflow-y-auto px-4 custom-scrollbar">
+    <div id="wishWall" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
+        </div>
+</div>
                 <!-- Data loads here from Firestore -->
-            </div>
+            
         </div>
     </section>
 
@@ -564,67 +585,92 @@
     };
 
     const renderKites = (kites) => {
-        const arena = document.getElementById('kite-arena');
-        const placeholder = document.getElementById('sky-placeholder');
-        const counter = document.getElementById('kite-count');
-        if (!arena || !placeholder || !counter) return;
+    const arena = document.getElementById('kite-arena');
+    const placeholder = document.getElementById('sky-placeholder');
+    const counter = document.getElementById('kite-count');
+    if (!arena || !placeholder || !counter) return;
 
-        arena.innerHTML = '';
+    arena.innerHTML = '';
 
-        if (kites.length === 0) {
-            placeholder.style.display = 'flex';
-            counter.classList.add('hidden');
-            return;
-        }
+    if (kites.length === 0) {
+        placeholder.style.display = 'flex';
+        counter.classList.add('hidden');
+        return;
+    }
 
-        placeholder.style.display = 'none';
-        counter.classList.remove('hidden');
-        counter.innerText = `${kites.length} Kites Soaring`;
+    placeholder.style.display = 'none';
+    counter.classList.remove('hidden');
+    counter.innerText = `${kites.length} Kites Soaring`;
 
-        kites.forEach((k, index) => {
-            const div = document.createElement('div');
-            // Using a unique delay and float for each kite
-            const scale = 0.8 + (index % 4) * 0.1;
-            const delay = -(index % 5) * 1.5;
+    // Sort: Newest kites first
+    kites.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
-            div.className = 'animate-kite flex flex-col items-center p-4 relative';
-            div.style.animationDelay = `${delay}s`;
-            div.style.transform = `scale(${scale})`;
+    kites.forEach((k, index) => {
+        const div = document.createElement('div');
+        
+        // For 300+ kites, we reduce the scale as they get older (creating depth)
+        // Kites 1-20 are normal size, 21-100 are smaller, 101+ are "in the distance"
+        let depthScale = 1.0;
+        if (index > 20) depthScale = 0.8;
+        if (index > 100) depthScale = 0.6;
 
-            div.innerHTML = `
-                <div style="filter: drop-shadow(0 12px 18px rgba(0,0,0,0.15))">
-                    <svg width="70" height="70" viewBox="0 0 100 100">
-                        <path d="M50 0L100 50L50 100L0 50L50 0Z" fill="${k.color || '#f97316'}"/>
-                        <path d="M50 0V100M0 50H100" stroke="white" stroke-width="2"/>
-                        <path d="M50 100 Q60 115 50 135" stroke="white" stroke-width="2" fill="none"/>
-                    </svg>
+        const delay = -(index % 10) * 0.8; // Varied animation start times
+
+        div.className = 'kite-item animate-kite flex flex-col items-center justify-center relative';
+        div.style.animationDelay = `${delay}s`;
+        div.style.transform = `scale(${depthScale})`;
+
+        div.innerHTML = `
+            <div class="relative group">
+                <svg width="50" height="50" viewBox="0 0 100 100" style="filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1))">
+                    <path d="M50 0L100 50L50 100L0 50L50 0Z" fill="${k.color || '#f97316'}"/>
+                    <path d="M50 0V100M0 50H100" stroke="white" stroke-width="3" opacity="0.8"/>
+                    <path d="M50 100 Q60 115 50 135" stroke="${k.color || '#f97316'}" stroke-width="2" fill="none"/>
+                </svg>
+                <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-90 group-hover:opacity-100 transition-opacity">
+                    <span class="bg-white/95 px-2 py-0.5 rounded-md text-[9px] font-bold shadow-sm text-slate-700 whitespace-nowrap border border-sky-100">
+                        ${k.name || 'Team'}
+                    </span>
                 </div>
-                <span class="bg-white/90 px-3 py-1 rounded-full text-[11px] font-bold mt-2 shadow-lg text-slate-700 whitespace-nowrap border border-sky-100">
-                    ${k.name || 'Member'}
-                </span>
-            `;
-            arena.appendChild(div);
-        });
-    };
+            </div>
+        `;
+        arena.appendChild(div);
+    });
+};
 
-    const renderWishes = (wishes) => {
-        const wall = document.getElementById('wishWall');
-        if (!wall) return;
-        wall.innerHTML = '';
-        wishes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+const renderWishes = (wishes) => {
+    const wall = document.getElementById('wishWall');
+    if (!wall) return;
+    
+    // Sort: Newest first
+    wishes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-        if (wishes.length === 0) {
-            wall.innerHTML = '<div class="col-span-full text-center text-orange-200 py-10">No wishes yet. Be the first to share!</div>';
-            return;
-        }
+    // For performance, we only show the latest 50 wishes in the UI
+    // even if there are 300+ in the database
+    const recentWishes = wishes.slice(0, 50); 
 
-        wishes.forEach(data => {
-            const card = document.createElement('div');
-            card.className = 'bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg';
-            card.innerHTML = `<p class="text-white italic">"${data.wish}"</p><span class="font-bold text-yellow-300 text-sm mt-4 block">— ${data.name}</span>`;
-            wall.appendChild(card);
-        });
-    };
+    wall.innerHTML = '';
+
+    if (recentWishes.length === 0) {
+        wall.innerHTML = '<div class="col-span-full text-center text-orange-200 py-10">No wishes yet. Be the first to share!</div>';
+        return;
+    }
+
+    recentWishes.forEach(data => {
+        const card = document.createElement('div');
+        // Added a "glass-morphism" effect that looks great in large numbers
+        card.className = 'bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20 shadow-md hover:bg-white/20 transition-all';
+        card.innerHTML = `
+            <div class="flex flex-col h-full">
+                <p class="text-white text-sm italic leading-relaxed flex-1">"${data.wish}"</p>
+                <div class="mt-4 pt-3 border-t border-white/10">
+                    <span class="font-bold text-yellow-300 text-xs uppercase tracking-wider">— ${data.name}</span>
+                </div>
+            </div>
+        `;
+        wall.appendChild(card);
+    });
+};
 
     // --- Global Handlers (Attached to window for HTML onclick access) ---
     window.handleLaunchKite = async () => {
