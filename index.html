@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sankranthi Sambaralu - Team Celebration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --festive-orange: #f97316;
+            --festive-yellow: #fbbf24;
+            --festive-pink: #db2777;
+            --festive-green: #15803d;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fffcf0 0%, #fff4e0 100%);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        .festive-text {
+            font-family: 'Rozha One', serif;
+            background: linear-gradient(to right, #ea580c, #db2777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Core Animations */
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg) translateY(0); }
+            50% { transform: rotate(5deg) translateY(-20px); }
+        }
+        .animate-sway { animation: sway 4s ease-in-out infinite; }
+
+        @keyframes walk {
+            0% { transform: translateX(-20px); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(-20px); }
+        }
+        .animate-walk { animation: walk 6s ease-in-out infinite; }
+
+        @keyframes peck {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+        .animate-peck { animation: peck 0.5s ease-in-out infinite; }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+        .animate-jump { animation: jump 0.8s ease-in-out infinite; }
+
+        .petal {
+            position: fixed;
+            top: -10%;
+            user-select: none;
+            pointer-events: none;
+            z-index: 50;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+               .rangoli-dots {
+
+            background-image: radial-gradient(#fbbf24 1px, transparent 1px);
+
+            background-size: 40px 40px;
+
+            opacity: 0.2;
+
+        }
+        
+        @keyframes kiteFloat {
+    0%   { transform: translateY(0) rotate(0deg); }
+    50%  { transform: translateY(-25px) rotate(2deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+.animate-kite {
+    animation: kiteFloat 6s ease-in-out infinite;
+}
+        
+        .rangoli-bg {
+            background-image: radial-gradient(#fbbf24 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+        }
+
+        .cultural-icon {
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15));
+        }
+
+        /* Notifications */
+        #statusMsg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        /* Bhogi Fire Flicker */
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+            20% { transform: scale(1.05, 0.95) rotate(-1deg); opacity: 1; }
+            40% { transform: scale(0.98, 1.05) rotate(1deg); opacity: 0.85; }
+            60% { transform: scale(1.02, 1) rotate(-0.5deg); opacity: 1; }
+            80% { transform: scale(0.95, 1.02) rotate(0.5deg); opacity: 0.9; }
+        }
+        .animate-flicker {
+            animation: flicker 0.5s ease-in-out infinite;
+        }
+        #debugBadge {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #333;
+            color: #fff;
+            z-index: 999;
+            opacity: 0.95;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="relative">
+    
+   <div class="fixed inset-0 rangoli-dots pointer-events-none"></div>
+    <div id="petal-container"></div>
+    <div class="fixed inset-0 rangoli-bg pointer-events-none"></div>
+
+    <!-- Diagnostic Badge -->
+    <div id="debugBadge">Storage: Initializing...</div>
+
+    <!-- Success Toast -->
+    <div id="statusMsg" class="bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl animate-bounce">
+        Wish shared successfully! 🌾
+    </div>
+        <!-- Floating Kites -->
+    <div class="fixed top-10 left-[5%] animate-sway z-10" id="kite-1">
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none"><path d="M50 0L100 50L50 100L0 50L50 0Z" fill="#f97316"/><path d="M50 0V100M0 50H100" stroke="white" stroke-width="2"/><path d="M50 100L40 120H60L50 100Z" fill="#db2777"/></svg>
+    </div>
+    <div class="fixed top-20 right-[10%] animate-sway z-10" style="animation-delay: -2s;" id="kite-2">
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none"><path d="M50 0L100 50L50 100L0 50L50 0Z" fill="#fbbf24"/><path d="M50 0V100M0 50H100" stroke="white" stroke-width="2"/><path d="M50 100L40 115H60L50 100Z" fill="#f97316"/></svg>
+    </div>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20 relative overflow-hidden">
+                <!-- ENHANCED STATIC RANGOLI BACKGROUND -->
+
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none z-0">
+
+            <svg class="animate-rotate" width="800" height="800" viewBox="0 0 200 200">
+
+                <defs>
+
+                    <filter id="glow">
+
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+
+                        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+
+                    </filter>
+
+                </defs>
+
+                <!-- Central Patterns -->
+
+                <circle cx="100" cy="100" r="85" fill="none" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="2 4" />
+
+                <circle cx="100" cy="100" r="70" fill="none" stroke="#ea580c" stroke-width="1" />
+
+               
+
+                <!-- Petal Layers -->
+
+                <g fill="#db2777" opacity="0.4">
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(0 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(45 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(90 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(135 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(180 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(225 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(270 100 100)" />
+
+                    <path d="M100 30 Q110 50 100 70 Q90 50 100 30" transform="rotate(315 100 100)" />
+
+                </g>
+
+
+
+                <g fill="#fbbf24" opacity="0.6">
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(0 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(30 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(60 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(90 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(120 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(150 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(180 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(210 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(240 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(270 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(300 100 100)" />
+
+                    <circle cx="100" cy="45" r="5" transform="rotate(330 100 100)" />
+
+                </g>
+
+
+
+                <circle cx="100" cy="100" r="15" fill="#ea580c" filter="url(#glow)" />
+
+                <circle cx="100" cy="100" r="8" fill="#fff" />
+
+            </svg>
+
+        </div>
+                <!-- Animated REALISTIC White Gangireddu (Bottom Left) -->
+        <div class="absolute bottom-5 left-[-40px] md:left-5 animate-walk hidden md:block">
+            <div class="cultural-icon flex flex-col items-center">
+                <svg width="240" height="200" viewBox="0 0 250 200">
+                    <defs>
+                        <!-- White Fur Gradient -->
+                        <linearGradient id="bodyGradWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="hornGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#b91c1c;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Legs (far side) in Shadow -->
+                    <rect x="80" y="135" width="14" height="45" rx="5" fill="#d1d5db" />
+                    <rect x="145" y="135" width="14" height="45" rx="5" fill="#d1d5db" />
+                    
+                    <!-- Main Body Shape (White Fur) -->
+                    <path d="M60 130 Q60 80 125 80 T195 110 Q210 145 190 158 Q130 168 60 135" fill="url(#bodyGradWhite)" />
+                    
+                    <!-- Iconic Hump -->
+                    <path d="M90 90 Q115 45 155 90" fill="url(#bodyGradWhite)" stroke="#e5e7eb" stroke-width="1"/>
+                    
+                    <!-- ENHANCED ORNATE BLANKET (Jhul) -->
+                    <path d="M80 95 Q125 80 175 105 L185 155 Q130 170 70 150 Z" fill="#b91c1c" />
+                    <path d="M80 95 Q125 80 175 105 L178 112 Q125 90 82 102 Z" fill="#fbbf24" />
+                    
+                    <!-- Mirror Work -->
+                    <circle cx="105" cy="115" r="5" fill="white" opacity="0.9" stroke="#92400e" stroke-width="1" />
+                    <circle cx="130" cy="120" r="5" fill="white" opacity="0.9" stroke="#92400e" stroke-width="1" />
+                    <circle cx="155" cy="125" r="5" fill="white" opacity="0.9" stroke="#92400e" stroke-width="1" />
+                    <circle cx="115" cy="140" r="4" fill="white" opacity="0.9" stroke="#92400e" stroke-width="1" />
+                    <circle cx="145" cy="145" r="4" fill="white" opacity="0.9" stroke="#92400e" stroke-width="1" />
+                    
+                    <!-- Hanging Tassels -->
+                    <path d="M75 152 L75 160" stroke="#fbbf24" stroke-width="2" />
+                    <path d="M95 158 L95 166" stroke="#fbbf24" stroke-width="2" />
+                    <path d="M120 165 L120 173" stroke="#fbbf24" stroke-width="2" />
+                    <path d="M150 168 L150 176" stroke="#fbbf24" stroke-width="2" />
+                    <path d="M175 162 L175 170" stroke="#fbbf24" stroke-width="2" />
+
+                    <!-- Neck with Garland -->
+                    <path d="M190 115 Q210 105 215 85" stroke="url(#bodyGradWhite)" stroke-width="28" stroke-linecap="round" fill="none" />
+                    <path d="M192 100 Q205 98 220 112" stroke="#fbbf24" stroke-width="4" fill="none" stroke-dasharray="2,6" />
+                    <circle cx="198" cy="102" r="4" fill="#fbbf24" />
+                    <circle cx="210" cy="108" r="4" fill="#fbbf24" />
+                    
+                    <!-- Head -->
+                    <path d="M205 85 Q220 65 242 88 Q235 110 210 105 Z" fill="url(#bodyGradWhite)" />
+                    <!-- Snout Detail -->
+                    <path d="M236 90 Q242 92 238 98" stroke="#9ca3af" stroke-width="1.5" fill="none" />
+                    
+                    <!-- Ears -->
+                    <path d="M208 85 Q195 88 192 100" fill="#f9fafb" stroke="#d1d5db" stroke-width="0.5" />
+                    <path d="M232 82 Q245 85 248 95" fill="#f9fafb" stroke="#d1d5db" stroke-width="0.5" />
+                    
+                    <!-- REGAL HORNS (Classic Red) -->
+                    <path d="M215 75 Q205 30 195 25" stroke="url(#hornGrad)" stroke-width="10" fill="none" stroke-linecap="round" />
+                    <circle cx="195" cy="25" r="5" fill="#fbbf24" />
+                    <path d="M228 78 Q248 35 258 30" stroke="url(#hornGrad)" stroke-width="10" fill="none" stroke-linecap="round" />
+                    <circle cx="258" cy="30" r="5" fill="#fbbf24" />
+
+                    <!-- Eye -->
+                    <circle cx="225" cy="82" r="3" fill="#111827" />
+                    <circle cx="226" cy="81" r="1.2" fill="white" />
+                    
+                    <!-- Legs (near side) -->
+                    <rect x="95" y="145" width="16" height="45" rx="5" fill="url(#bodyGradWhite)" stroke="#e5e7eb" stroke-width="0.5" />
+                    <rect x="160" y="145" width="16" height="45" rx="5" fill="url(#bodyGradWhite)" stroke="#e5e7eb" stroke-width="0.5" />
+                    
+                    <!-- Tail -->
+                    <path d="M60 120 Q35 110 30 150" stroke="#f3f4f6" stroke-width="6" fill="none" />
+                    <circle cx="30" cy="150" r="3" fill="#9ca3af" opacity="0.4" />
+                </svg>
+                <span class="bg-orange-600 text-white text-[11px] px-4 py-1 rounded-full font-bold shadow-lg -mt-3 uppercase tracking-widest border border-orange-400">GANGIREDDU</span>
+            </div>
+        </div>
+        <!-- BHOGI FIRE -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center hidden md:flex">
+            <div class="relative w-48 h-52 scale-90 md:scale-100">
+                <svg viewBox="0 0 100 120" class="w-full h-full">
+                    <radialGradient id="fireGlow" cx="50%" cy="85%" r="40%">
+                        <stop offset="0%" stop-color="#f97316" stop-opacity="0.4" />
+                        <stop offset="100%" stop-color="#f97316" stop-opacity="0" />
+                    </radialGradient>
+                    <ellipse cx="50" cy="105" rx="35" ry="10" fill="url(#fireGlow)" />
+                    <g stroke="#2d1606" stroke-width="0.5">
+                        <rect x="10" y="102" width="80" height="12" rx="3" fill="#451a03" />
+                        <rect x="5" y="106" width="90" height="10" rx="3" fill="#3b1602" transform="rotate(2 50 111)" />
+                        <rect x="20" y="90" width="60" height="12" rx="3" fill="#542308" transform="rotate(-20 50 96)" />
+                        <rect x="20" y="90" width="60" height="12" rx="3" fill="#451a03" transform="rotate(20 50 96)" />
+                    </g>
+                    <g class="animate-flicker" style="transform-origin: 50px 105px;">
+                        <path d="M50 15 C75 55 85 85 80 105 C70 115 30 115 20 105 C15 85 25 55 50 15" fill="#f97316" />
+                        <path d="M50 40 C65 65 75 85 70 102 C65 110 35 110 30 102 C25 85 35 65 50 40" fill="#fbbf24" />
+                    </g>
+                </svg>
+            </div>
+            <span class="bg-orange-950/80 text-orange-100 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest mt-1 backdrop-blur-sm shadow-lg border border-orange-700/50">Bhogi Mantalu</span>
+        </div>
+
+        <!-- HARIDASU -->
+        <div class="absolute bottom-10 right-[-10px] md:right-10 animate-sway hidden md:block">
+            <div class="cultural-icon flex flex-col items-center">
+                <svg width="120" height="180" viewBox="0 0 100 150">
+                    <path d="M30 60 L70 60 L85 140 L15 140 Z" fill="#ea580c" />
+                    <rect x="40" y="30" width="20" height="30" fill="#fed7aa" />
+                    <circle cx="50" cy="20" r="15" fill="#fed7aa" />
+                    <path d="M65 20 L65 100" stroke="#92400e" stroke-width="4" />
+                    <circle cx="65" cy="110" r="12" fill="#92400e" />
+                    <circle cx="35" cy="80" r="6" fill="#fbbf24" />
+                    <path d="M35 10 Q50 -5 65 10 Z" fill="#fbbf24" />
+                </svg>
+                <span class="bg-yellow-500 text-orange-900 text-[10px] px-2 py-1 rounded-full font-bold">HARIDASU</span>
+            </div>
+        </div>
+
+        <div class="relative z-10">
+            <span class="inline-block px-4 py-1 mb-6 text-sm font-semibold tracking-widest text-orange-600 uppercase bg-orange-100 rounded-full">Sankranthi Sambaralu 2026</span>
+            <h1 class="festive-text text-6xl md:text-8xl mb-6">Happy Sankranthi</h1>
+            <p class="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto font-light leading-relaxed">
+                Celebrating our team's hard work, soaring ambitions, and the sweetness of shared success.
+            </p>
+            <div class="mt-10 flex flex-wrap gap-4 justify-center">
+                <a href="#traditions" class="px-8 py-3 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition transform hover:-translate-y-1">Traditions</a>
+                <a href="#community-sky" class="px-8 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition transform hover:-translate-y-1">Team Sky</a>
+                <a href="#wishes" class="px-8 py-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition transform hover:-translate-y-1">Gratitude Wall</a>
+            </div>
+        </div>
+    </section>
+     
+    <!-- ROOSTER FIGHT SECTION -->
+        <!-- Traditions Section (Cock Fight) -->
+    <section id="traditions" class="py-24 px-4 bg-orange-50/50">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Kodipunju Pandem</h2>
+            <p class="text-gray-500 mb-12">The spirit of competition and victory!</p>
+            
+            <div class="flex justify-center items-end gap-12 h-64">
+                <!-- Rooster Left -->
+                <div class="animate-jump flex flex-col items-center" style="animation-delay: 0.1s">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="30" fill="#dc2626" />
+                        <path d="M70 40 L90 30" stroke="#dc2626" stroke-width="8" />
+                        <circle cx="45" cy="35" r="15" fill="#dc2626" />
+                        <path d="M55 30 L65 30" stroke="#fbbf24" stroke-width="4" class="animate-peck" />
+                        <path d="M30 60 L10 80" stroke="#000" stroke-width="2" />
+                        <path d="M40 75 L30 95" stroke="#000" stroke-width="3" />
+                    </svg>
+                    <span class="text-xs font-bold text-red-600">Sales</span>
+                </div>
+
+                <div class="text-5xl font-black text-orange-200 self-center">VS</div>
+
+                <!-- Rooster Right -->
+                <div class="animate-jump flex flex-col items-center" style="animation-delay: 0.4s">
+                    <svg width="100" height="100" viewBox="0 0 100 100" style="transform: scaleX(-1)">
+                        <circle cx="50" cy="50" r="30" fill="#1e293b" />
+                        <path d="M70 40 L90 30" stroke="#1e293b" stroke-width="8" />
+                        <circle cx="45" cy="35" r="15" fill="#1e293b" />
+                        <path d="M55 30 L65 30" stroke="#fbbf24" stroke-width="4" class="animate-peck"/>
+                        <path d="M30 60 L10 80" stroke="#000" stroke-width="2" />
+                        <path d="M40 75 L30 95" stroke="#000" stroke-width="3" />
+                    </svg>
+                    <span class="text-xs font-bold text-slate-800">Recruiting</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Greeting Grid -->
+    <section class="py-24 px-4">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="glass-card p-8 rounded-3xl hover:bg-orange-50 transition-colors group">
+                <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">🪁</div>
+                <h3 class="text-xl font-bold mb-3">Fly High</h3>
+                <p class="text-gray-600">Just like the kites of Sankranthi, may our team's spirits reach high this year.</p>
+            </div>
+            <div class="glass-card p-8 rounded-3xl hover:bg-yellow-50 transition-colors group">
+                <div class="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">🥣</div>
+                <h3 class="text-xl font-bold mb-3">Sweet Pongal</h3>
+                <p class="text-gray-600">Wishing your family a season as sweet as the harvest rice and jaggery we share.</p>
+            </div>
+            <div class="glass-card p-8 rounded-3xl hover:bg-pink-50 transition-colors group">
+                <div class="w-16 h-16 bg-pink-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">🌞</div>
+                <h3 class="text-xl font-bold mb-3">New Beginnings</h3>
+                <p class="text-gray-600">As the sun moves into Capricorn, may it bring warmth and clarity to your career path.</p>
+            </div>
+        </div>
+    </section>
+    <!-- TRADITIONS SECTION (Enhanced with Cards) -->
+    <section id="traditions" class="py-24 px-4 max-w-7xl mx-auto">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="h-10 w-2 bg-orange-600 rounded-full"></div>
+            <h2 class="text-3xl font-bold text-gray-800">The Essence of Sankranthi</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Bhogi Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-orange-500 hover:scale-105 transition-transform group">
+                <div class="bg-orange-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-orange-200 transition-colors">🔥</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Bhogi Mantalu</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">Starting the festival with a bonfire to burn away the old and welcome the new prosperity and warmth.</p>
+            </div>
+
+            <!-- Haridasu Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-yellow-500 hover:scale-105 transition-transform group">
+                <div class="bg-yellow-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-yellow-200 transition-colors">🎤</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Haridasu</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">The melodic presence of Haridasu early in the morning, carrying a tambura and singing devotional hymns.</p>
+            </div>
+
+            <!-- Gangireddu Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-red-500 hover:scale-105 transition-transform group">
+                <div class="bg-red-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-red-200 transition-colors">🐂</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Gangireddu</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">Decorated bulls dancing to the tunes of Sannai, visiting homes and bringing festive blessings to the team.</p>
+            </div>
+
+            <!-- Kodipandalu Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-slate-700 hover:scale-105 transition-transform group">
+                <div class="bg-slate-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-slate-200 transition-colors">🐓</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Kodipandalu</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">The traditional rural sports that bring a competitive and lively spirit to the harvest season.</p>
+            </div>
+
+            <!-- Muggulu Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-pink-500 hover:scale-105 transition-transform group">
+                <div class="bg-pink-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-pink-200 transition-colors">🌸</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Rangoli & Muggulu</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">Intricate geometric patterns at the doorstep, adorned with flowers and Gobbemma to welcome the Sun God.</p>
+            </div>
+
+            <!-- Kites Card -->
+            <div class="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-t-4 border-blue-500 hover:scale-105 transition-transform group">
+                <div class="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-200 transition-colors">🪁</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Patang (Kites)</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">The sky fills with color as generations come together to 'cut' other kites in friendly duels of ambition.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE COMMUNITY SECTION -->
+    <section id="community-sky" class="py-24 px-4 bg-sky-50/50 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
+                <h2 class="text-4xl font-bold text-slate-800">Sky of Ambitions</h2>
+                <span id="kite-count" class="bg-orange-100 text-orange-600 px-4 py-1 rounded-full font-bold text-lg hidden">0 Kites Soaring</span>
+            </div>
+            <p class="text-slate-600 mb-12 max-w-2xl mx-auto italic font-medium">
+                Launch a kite with your name! Scroll the sky to see all your soaring teammates.
+            </p>
+
+            <div class="glass-card rounded-[2.5rem] min-h-[600px] max-h-[700px] relative overflow-hidden border-2 border-sky-200 bg-sky-100/30 flex flex-col shadow-2xl">
+                <div class="absolute inset-0 flex items-center justify-center p-12 pointer-events-none" id="sky-placeholder">
+                    <div class="text-sky-300 font-bold opacity-50 text-xl">The sky is waiting for our team...</div>
+                </div>
+                <div id="kite-arena" class="flex-1 overflow-y-auto p-12 flex flex-wrap items-center justify-center gap-12 content-start relative z-0 custom-scrollbar"></div>
+                <div class="p-8 border-t border-sky-100 bg-white/60 backdrop-blur-md relative z-10">
+                    <div class="max-w-md mx-auto flex bg-white rounded-full shadow-2xl p-1 border border-sky-100 ring-4 ring-sky-50">
+                        <input type="text" id="kiteName" placeholder="Enter your name to launch" class="flex-1 bg-transparent px-6 py-3 outline-none text-slate-700 font-medium">
+                        <button onclick="handleLaunchKite()" id="launchBtn" class="bg-orange-600 text-white px-8 py-3 rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg active:scale-95">Launch 🪁</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- WISHES WALL -->
+    <section id="wishes" class="py-24 px-4 bg-orange-600 text-white relative overflow-hidden">
+        <div class="max-w-5xl mx-auto text-center z-10 relative">
+            <h2 class="text-4xl font-bold mb-4">Harvest of Gratitude</h2>
+            <p class="mb-12 text-orange-100">Share your festive greetings with the team</p>
+            <div class="max-w-2xl mx-auto mb-16 space-y-4">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input type="text" id="userName" placeholder="Your Name" class="md:w-1/3 px-6 py-4 rounded-full text-gray-800 outline-none">
+                    <input type="text" id="wishInput" placeholder="Write your wish..." class="flex-1 px-6 py-4 rounded-full text-gray-800 outline-none">
+                </div>
+                <button id="postBtn" onclick="handlePostWish()" class="px-12 py-4 bg-yellow-400 text-orange-900 font-bold rounded-full hover:bg-yellow-300 shadow-xl transition-all">Post Wish</button>
+            </div>
+            <div id="wishWall" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                <!-- Data loads here from Firestore -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-gray-500 text-sm">
+        <p>© 2026 Sankranthi Team Celebration • Flourishing Together</p>
+    </footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBo8tL_8B7_Lh83rMVBG8qjD5B4PcKIDNM",
+        authDomain: "intellectt-celebration.firebaseapp.com",
+        projectId: "intellectt-celebration",
+        storageBucket: "intellectt-celebration.firebasestorage.app",
+        messagingSenderId: "505547799374",
+        appId: "1:505547799374:web:8c2d00c23eee3cd0c67c1f",
+        measurementId: "G-WETKT082KX"
+    };
+
+    const appId = 'intellectt-sankranthi-app';
+    let db, auth, currentUser = null, isFirebaseReady = false;
+
+    // --- Helper Functions ---
+    const updateDebug = (text, color = "#333") => {
+        const debugBadge = document.getElementById('debugBadge');
+        if (debugBadge) {
+            debugBadge.innerText = `Storage: ${text}`;
+            debugBadge.style.background = color;
+        }
+    };
+
+    const renderKites = (kites) => {
+        const arena = document.getElementById('kite-arena');
+        const placeholder = document.getElementById('sky-placeholder');
+        const counter = document.getElementById('kite-count');
+        if (!arena || !placeholder || !counter) return;
+
+        arena.innerHTML = '';
+
+        if (kites.length === 0) {
+            placeholder.style.display = 'flex';
+            counter.classList.add('hidden');
+            return;
+        }
+
+        placeholder.style.display = 'none';
+        counter.classList.remove('hidden');
+        counter.innerText = `${kites.length} Kites Soaring`;
+
+        kites.forEach((k, index) => {
+            const div = document.createElement('div');
+            // Using a unique delay and float for each kite
+            const scale = 0.8 + (index % 4) * 0.1;
+            const delay = -(index % 5) * 1.5;
+
+            div.className = 'animate-kite flex flex-col items-center p-4 relative';
+            div.style.animationDelay = `${delay}s`;
+            div.style.transform = `scale(${scale})`;
+
+            div.innerHTML = `
+                <div style="filter: drop-shadow(0 12px 18px rgba(0,0,0,0.15))">
+                    <svg width="70" height="70" viewBox="0 0 100 100">
+                        <path d="M50 0L100 50L50 100L0 50L50 0Z" fill="${k.color || '#f97316'}"/>
+                        <path d="M50 0V100M0 50H100" stroke="white" stroke-width="2"/>
+                        <path d="M50 100 Q60 115 50 135" stroke="white" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <span class="bg-white/90 px-3 py-1 rounded-full text-[11px] font-bold mt-2 shadow-lg text-slate-700 whitespace-nowrap border border-sky-100">
+                    ${k.name || 'Member'}
+                </span>
+            `;
+            arena.appendChild(div);
+        });
+    };
+
+    const renderWishes = (wishes) => {
+        const wall = document.getElementById('wishWall');
+        if (!wall) return;
+        wall.innerHTML = '';
+        wishes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        if (wishes.length === 0) {
+            wall.innerHTML = '<div class="col-span-full text-center text-orange-200 py-10">No wishes yet. Be the first to share!</div>';
+            return;
+        }
+
+        wishes.forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg';
+            card.innerHTML = `<p class="text-white italic">"${data.wish}"</p><span class="font-bold text-yellow-300 text-sm mt-4 block">— ${data.name}</span>`;
+            wall.appendChild(card);
+        });
+    };
+
+    // --- Global Handlers (Attached to window for HTML onclick access) ---
+    window.handleLaunchKite = async () => {
+        const nameInput = document.getElementById('kiteName');
+        const name = nameInput.value.trim();
+        if (!name || !currentUser) return;
+
+        const btn = document.getElementById('launchBtn');
+        btn.disabled = true; 
+        btn.innerText = "Launching...";
+
+        const colors = ['#f97316', '#fbbf24', '#db2777', '#15803d', '#3b82f6', '#9333ea'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+        try {
+            const kitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'team_kites');
+            await addDoc(kitesRef, { name, color: randomColor, timestamp: serverTimestamp() });
+            nameInput.value = '';
+        } catch (e) { 
+            console.error(e); 
+        } finally {
+            btn.disabled = false; 
+            btn.innerText = "Launch 🪁";
+        }
+    };
+
+    window.handlePostWish = async () => {
+        const name = document.getElementById('userName').value.trim();
+        const wish = document.getElementById('wishInput').value.trim();
+        if (!name || !wish) return;
+
+        if (!isFirebaseReady || !currentUser) {
+            alert("Database not connected. Check bottom-left corner.");
+            return;
+        }
+
+        const btn = document.getElementById('postBtn');
+        const statusToast = document.getElementById('statusMsg');
+        btn.innerText = "Posting...";
+        btn.disabled = true;
+
+        try {
+            const wishesRef = collection(db, 'artifacts', appId, 'public', 'data', 'team_wishes');
+            await addDoc(wishesRef, { 
+                name, 
+                wish, 
+                userId: currentUser.uid, 
+                timestamp: serverTimestamp() 
+            });
+            document.getElementById('wishInput').value = '';
+            statusToast.style.display = 'block';
+            setTimeout(() => statusToast.style.display = 'none', 3000);
+        } catch (e) { 
+            console.error("Save Error:", e);
+        } finally {
+            btn.innerText = "Post Wish";
+            btn.disabled = false;
+        }
+        localStorage.setItem('sankranthi_user_name', name);
+    };
+
+    // --- Initialization ---
+    try {
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        signInAnonymously(auth).catch(err => {
+            console.error("Auth Error:", err);
+            updateDebug("❌ Auth Failed", "#dc2626");
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                isFirebaseReady = true;
+                updateDebug("Cloud Connected ✅", "#059669");
+
+                // Listen for Kites
+                const kitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'team_kites');
+                onSnapshot(kitesRef, (snapshot) => {
+                    const docs = [];
+                    snapshot.forEach(doc => docs.push(doc.data()));
+                    renderKites(docs);
+                });
+
+                // Listen for Wishes
+                const wishesRef = collection(db, 'artifacts', appId, 'public', 'data', 'team_wishes');
+                onSnapshot(wishesRef, (snapshot) => {
+                    const docs = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        docs.push({ ...data, timestamp: data.timestamp?.seconds * 1000 || Date.now() });
+                    });
+                    renderWishes(docs);
+                });
+            }
+        });
+    } catch (e) {
+        updateDebug("Config Error ❌", "#dc2626");
+    }
+
+    // --- UI Effects ---
+    const savedName = localStorage.getItem('sankranthi_user_name');
+    if (savedName) document.getElementById('userName').value = savedName;
+
+    // Petal Generator
+    setInterval(() => {
+        const container = document.getElementById('petal-container');
+        if(!container) return;
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.style.width = p.style.height = (Math.random()*15+10)+'px';
+        p.style.backgroundColor = ['#f97316', '#fbbf24', '#db2777', '#16a34a'][Math.floor(Math.random()*4)];
+        p.style.left = Math.random()*100+'vw';
+        p.style.borderRadius = '50% 0 50% 50%';
+        p.style.animationDuration = (Math.random()*3+4)+'s';
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 7000);
+    }, 450);
+</script>
+</body>
+</html>
+
+
+
